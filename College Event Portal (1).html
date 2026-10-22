@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>College Event Portal</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<style>
+:root{color-scheme:light;--bg:#fff;--ink:#14213d;--mute:#5b6478;--line:#dde1ea;--brand:#1d4ed8;--soft:#f3f6fc;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;line-height:1.5}
+.hidden{display:none!important}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:8px;padding:9px 16px;font-weight:600}
+button.sec{background:var(--bg);color:var(--brand)}
+button.bad{background:var(--bg);color:var(--bad);border-color:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.muted{color:var(--mute)}
+#login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#login h1{font-size:2rem;margin:0 0 6px}
+.choices{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:24px}
+.choices button{min-width:200px;padding:16px 28px;font-size:1.05rem}
+.adminform{margin-top:24px;display:grid;gap:10px;width:min(320px,100%);text-align:left}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:20px 14px;background:var(--soft)}
+aside h2{font-size:1.1rem;margin:0 8px 2px}
+aside nav{display:flex;flex-direction:column;gap:4px;margin-top:18px}
+aside nav button{background:transparent;color:var(--ink);border:0;text-align:left;font-weight:500}
+aside nav button.on{background:var(--brand);color:#fff}
+main{padding:22px 28px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:20px;gap:12px}
+h1.t{font-size:1.5rem;margin:0 0 4px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--bg)}
+.card h3{margin:0 0 8px;font-size:1.05rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat{background:var(--soft);border-radius:10px;padding:14px}
+.stat b{display:block;font-size:1.7rem;color:var(--brand)}
+.tag{display:inline-block;background:var(--soft);color:var(--brand);border-radius:99px;padding:2px 10px;font-size:.8rem;font-weight:600}
+.pts{color:var(--ok);font-weight:700}
+.meta{color:var(--mute);font-size:.88rem;display:flex;flex-wrap:wrap;gap:4px 12px;margin:6px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;align-items:center}
+dl{margin:0;display:grid;grid-template-columns:120px 1fr;row-gap:8px}dt{color:var(--mute)}dd{margin:0;font-weight:600}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);font-size:.93rem}
+th{color:var(--mute);font-weight:600}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:4px}
+.form input,.form select,.form textarea,.adminform input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.form .full{grid-column:1/-1}
+.note{background:var(--soft);border-left:4px solid var(--brand);padding:10px 14px;border-radius:6px;margin:12px 0}
+.center{text-align:center;max-width:460px;margin:20px auto}
+.qr{width:190px;height:190px;margin:14px auto;border:1px solid var(--line);padding:8px;display:block}
+.err{color:var(--bad);font-size:.9rem}
+@media(max-width:800px){.app{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:12px}aside nav{flex-direction:row;overflow-x:auto;margin-top:8px}aside nav button{white-space:nowrap}main{padding:16px}.grid,.two,.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid,.two,.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <h1>College Event Portal</h1>
+  <p class="muted">Choose how you want to sign in.</p>
+  <div class="choices">
+    <button id="bStudent">Student Login</button>
+    <button id="bAdmin" class="sec">Admin Login</button>
+  </div>
+  <div id="adminForm" class="adminform hidden">
+    <label for="aid">Admin ID</label><input id="aid" autocomplete="off" placeholder="admin">
+    <label for="apw">Password</label><input id="apw" type="password" placeholder="admin123">
+    <div id="aerr" class="err"></div>
+    <button id="aGo">Sign in as admin</button>
+    <span class="muted" style="font-size:.85rem">Demo credentials: admin / admin123</span>
+  </div>
+</section>
+
+<div class="app hidden" id="app">
+  <aside><h2>College Event Portal</h2><div class="muted" id="roleLbl" style="margin:0 8px;font-size:.85rem"></div><nav id="nav"></nav></aside>
+  <main><div class="top"><div class="muted" id="crumb"></div><button class="sec" id="logout">Log out</button></div><div id="view"></div></main>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const student={name:"Reehana",roll:"23A91A05XX",branch:"CSE - AIML",year:"2nd Year"};
+const baseHistory=[{name:"Web Design Sprint",category:"Technical",date:"12 Aug 2026",points:40},{name:"Campus Cultural Quiz",category:"Cultural",date:"28 Jul 2026",points:30},{name:"Mini Hackathon",category:"Technical",date:"04 Jul 2026",points:50}];
+const basePoints=120;
+const seed=[
+{id:1,name:"Coding Contest",category:"Technical",date:"18 Nov 2026",time:"10:00 AM",venue:"Computer Lab 2",points:50,fee:100,status:"Upcoming",desc:"Solve programming challenges and show off your problem-solving skills."},
+{id:2,name:"UI/UX Design Jam",category:"Technical",date:"19 Nov 2026",time:"11:30 AM",venue:"Innovation Hub",points:35,fee:50,status:"Upcoming",desc:"Design a delightful interface for a real-world student problem."},
+{id:3,name:"Battle of Bands",category:"Cultural",date:"20 Nov 2026",time:"4:00 PM",venue:"Open-Air Stage",points:40,fee:150,status:"Upcoming",desc:"Bring your sound, your crew, and your best live performance."},
+{id:4,name:"Dance Showcase",category:"Cultural",date:"21 Nov 2026",time:"2:00 PM",venue:"Main Auditorium",points:30,fee:100,status:"Upcoming",desc:"Solo and group dance performances across styles."},
+{id:5,name:"Futsal Cup",category:"Sports",date:"22 Nov 2026",time:"9:00 AM",venue:"College Sports Ground",points:45,fee:100,status:"Upcoming",desc:"Fast-paced team football and campus spirit."},
+{id:6,name:"Chess Arena",category:"Sports",date:"22 Nov 2026",time:"1:00 PM",venue:"Student Activity Room",points:25,fee:50,status:"Upcoming",desc:"Compete in a strategic rapid chess tournament."}];
+let events=seed.map(e=>({...e})),registered=[];
+try{const s=JSON.parse(localStorage.getItem("cep-state")||"null");if(s&&Array.isArray(s.events)){events=s.events;registered=s.registered||[]}}catch(e){}
+function save(){try{localStorage.setItem("cep-state",JSON.stringify({events,registered}))}catch(e){}}
+let role=null,page="",cat="All",sel=null,editing=null,adminMsg="";
+const nav={student:[["home","Overview"],["profile","Student Profile"],["events","Upcoming Events"],["history","Event History"],["registered","My Registered Events"]],
+admin:[["a_home","Overview"],["a_events","Manage Events"],["a_form","Add Event"],["a_regs","Registrations"]]};
+const crumbs={details:"Event Details",payment:"Payment",success:"Registration Successful"};
+const regEvents=()=>registered.map(id=>events.find(e=>e.id===id)).filter(Boolean);
+const doneEvents=()=>regEvents().filter(e=>e.status==="Completed");
+const earned=()=>doneEvents().reduce((a,e)=>a+e.points,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function go(p){page=p;if(p!=="a_form"&&p!=="a_events")editing=null;if(p!=="a_events")adminMsg="";
+$("nav").innerHTML=nav[role].map(([k,l])=>`<button class="${k===p?'on':''}" onclick="go('${k}')">${l}</button>`).join("");
+$("crumb").textContent=(nav[role].find(n=>n[0]===p)||[0,crumbs[p]||""])[1];render();window.scrollTo(0,0)}
+function enter(r){role=r;$("login").classList.add("hidden");$("app").classList.remove("hidden");$("roleLbl").textContent=r==="admin"?"Admin":student.name;go(r==="admin"?"a_home":"home")}
+$("bStudent").onclick=()=>enter("student");
+$("bAdmin").onclick=()=>$("adminForm").classList.remove("hidden");
+$("aGo").onclick=()=>{if($("aid").value.trim()==="admin"&&$("apw").value==="admin123"){$("aerr").textContent="";enter("admin")}else $("aerr").textContent="Wrong ID or password. Try admin / admin123."};
+$("logout").onclick=()=>{role=null;$("app").classList.add("hidden");$("login").classList.remove("hidden");$("adminForm").classList.add("hidden");$("apw").value=""};
+
+const card=e=>`<article class="card"><span class="tag">${e.category}</span> ${e.status==="Completed"?'<span class="tag" style="color:var(--ok)">Completed</span>':""}<h3 style="margin-top:8px">${esc(e.name)}</h3><div class="muted" style="font-size:.9rem">${esc(e.desc)}</div><div class="meta"><span>${esc(e.date)}</span><span>${esc(e.time)}</span><span>${esc(e.venue)}</span></div><div class="row" style="justify-content:space-between"><div><span class="pts">+${e.points} APP pts</span><div class="muted" style="font-size:.85rem">₹${e.fee} entry</div></div><button onclick="sel=${e.id};go('details')">View event</button></div></article>`;
+const hist=rows=>rows.length?`<div class="wrap"><table><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>APP points</th></tr></thead><tbody>${rows.map(e=>`<tr><td><b>${esc(e.name)}</b></td><td>${e.category}</td><td>${esc(e.date)}</td><td style="color:var(--ok);font-weight:600">Completed</td><td class="pts">+${e.points}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">No events completed yet.</p>`;
+const allHist=()=>[...doneEvents(),...baseHistory];
+
+function render(){const v={home,profile,events:evPage,history:histPage,registered:regPage,details,payment,success,a_home,a_events,a_form,a_regs}[page];$("view").innerHTML=v()}
+
+function home(){const up=events.filter(e=>e.status==="Upcoming");return `<h1 class="t">Welcome, ${student.name}</h1><p class="muted">Explore Aarohana 2026 events, register and earn APP points.</p>
+<div class="stats"><div class="stat"><b>${basePoints+earned()}</b>Total APP points</div><div class="stat"><b>${allHist().length}</b>Events completed</div><div class="stat"><b>${up.length}</b>Upcoming events</div><div class="stat"><b>${registered.length}</b>My registrations</div></div>
+<div class="row" style="justify-content:space-between"><h2 style="margin:0;font-size:1.2rem">Featured events</h2><button class="sec" onclick="go('events')">View all events</button></div><div class="grid">${up.slice(0,3).map(card).join("")||'<p class="muted">No upcoming events right now.</p>'}</div>`}
+function profile(){const prev=baseHistory.reduce((a,e)=>a+e.points,0);return `<h1 class="t">Student Profile</h1><div class="two"><section class="card"><h3>Details</h3><dl><dt>Name</dt><dd>${student.name}</dd><dt>Roll No</dt><dd>${student.roll}</dd><dt>Branch</dt><dd>${student.branch}</dd><dt>Year</dt><dd>${student.year}</dd></dl></section>
+<section class="card"><h3>APP Points</h3><div class="stats" style="grid-template-columns:1fr 1fr;margin:0"><div class="stat"><b>${basePoints+earned()}</b>Total APP points</div><div class="stat"><b>${prev+earned()}</b>Previous event points</div></div></section></div>
+<section class="card" style="margin-top:14px"><h3>Previous Events History</h3>${hist(allHist())}</section>
+<section class="card" style="margin-top:14px"><h3>Upcoming Events</h3><p class="muted" style="margin:0 0 8px">${events.filter(e=>e.status==="Upcoming").length} events open in Aarohana 2026.</p><button onclick="go('events')">Go to Aarohana 2026</button></section>`}
+function evPage(){return `<h1 class="t">Aarohana 2026</h1><p class="muted">Select a category, then an event.</p><div class="row">${["All","Technical","Cultural","Sports"].map(c=>`<button class="${cat===c?'':'sec'}" onclick="cat='${c}';render()">${c}</button>`).join("")}</div><div class="grid">${events.filter(e=>e.status==="Upcoming"&&(cat==="All"||e.category===cat)).map(card).join("")||'<p class="muted">No events in this category.</p>'}</div>`}
+function histPage(){return `<h1 class="t">Previous Events History</h1><section class="card">${hist(allHist())}</section>`}
+function regPage(){const r=regEvents();return `<h1 class="t">My Registered Events</h1>${r.length?`<div class="grid">${r.map(e=>`<article class="card"><span class="tag">${e.category}</span><h3 style="margin-top:8px">${esc(e.name)}</h3><div class="meta"><span>${esc(e.date)}</span><span>${esc(e.time)}</span><span>${esc(e.venue)}</span></div><div class="note">Registration successful</div>${e.status==="Completed"?`<span class="pts">Event completed · +${e.points} APP points added</span>`:`<span class="muted">Points are added once the admin marks this event completed.</span>`}</article>`).join("")}</div>`:`<section class="card center"><p>You haven’t registered for an event yet.</p><button onclick="go('events')">Browse events</button></section>`}`}
+function details(){const e=events.find(x=>x.id===sel);if(!e)return evPage();const on=registered.includes(e.id);return `<h1 class="t">${esc(e.name)}</h1><section class="card"><span class="tag">${e.category}</span><p>${esc(e.desc)}</p><dl><dt>Date</dt><dd>${esc(e.date)}</dd><dt>Time</dt><dd>${esc(e.time)}</dd><dt>Venue</dt><dd>${esc(e.venue)}</dd><dt>APP Points</dt><dd class="pts">+${e.points}</dd><dt>Fee</dt><dd>₹${e.fee}</dd></dl><div class="note">Payment is a simulation for this demo. No real money is charged.</div><div class="row"><button ${on?"disabled":""} onclick="go('payment')">${on?"Already registered":"Register now"}</button><button class="sec" onclick="go('events')">Back to events</button></div></section>`}
+function qrSvg(str){let h=7;for(const c of str)h=(h*31+c.charCodeAt(0))>>>0;const n=21;let s="";
+for(let y=0;y<n;y++)for(let x=0;x<n;x++){const fx=x<7?x:x>13?x-14:-1,fy=y<7?y:y>13?y-14:-1;let on;
+if(fx>=0&&fy>=0&&!(x>=7&&y>=7)&&((x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13))){on=Math.max(Math.abs(fx-3),Math.abs(fy-3))!==2}else{h=(h*1103515245+12345)>>>0;on=(h>>16)&1}
+if(on)s+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
+return `<svg class="qr" viewBox="-1 -1 23 23" role="img" aria-label="Demo payment QR code"><rect x="-1" y="-1" width="23" height="23" fill="#fff"/><g fill="#14213d">${s}</g></svg>`}
+function payment(){const e=events.find(x=>x.id===sel);if(!e)return evPage();return `<section class="card center"><h1 class="t">Proceed to Payment</h1><p class="muted">${esc(e.name)} · ${esc(e.date)}</p>${qrSvg(e.name+e.id)}<h2 style="margin:6px 0">₹${e.fee}</h2><p class="muted">Demo QR only. Do not scan or send money.</p><button onclick="pay()">Payment done</button><div style="margin-top:10px"><button class="sec" onclick="go('details')">Cancel</button></div></section>`}
+function pay(){if(!registered.includes(sel))registered.push(sel);save();go("success")}
+function success(){const e=events.find(x=>x.id===sel);return `<section class="card center"><div style="font-size:3rem;color:var(--ok)">✓</div><h1 class="t">Payment successful</h1><h2 style="margin:0 0 8px;font-size:1.2rem">Registration successful</h2><p class="muted">${e?esc(e.name):"Your event"} is now in your registered events.</p><div class="row" style="justify-content:center"><button onclick="go('registered')">My registered events</button><button class="sec" onclick="go('events')">More events</button></div></section>`}
+
+/* Admin */
+function a_home(){const c=k=>events.filter(e=>e.category===k).length;return `<h1 class="t">Admin Dashboard</h1><p class="muted">Check and update events for Aarohana 2026.</p><div class="stats"><div class="stat"><b>${events.length}</b>Total events</div><div class="stat"><b>${events.filter(e=>e.status==="Upcoming").length}</b>Upcoming</div><div class="stat"><b>${events.filter(e=>e.status==="Completed").length}</b>Completed</div><div class="stat"><b>${registered.length}</b>Registrations</div></div>
+<section class="card"><h3>Events by category</h3><p style="margin:0">Technical: <b>${c("Technical")}</b> &nbsp; Cultural: <b>${c("Cultural")}</b> &nbsp; Sports: <b>${c("Sports")}</b></p></section><div class="row"><button onclick="go('a_form')">Add new event</button><button class="sec" onclick="go('a_events')">Manage events</button></div>`}
+function a_events(){return `<h1 class="t">Manage Events</h1>${adminMsg?`<div class="note">${adminMsg}</div>`:""}<section class="card"><div class="wrap"><table><thead><tr><th>Event</th><th>Category</th><th>Date &amp; time</th><th>Venue</th><th>Pts</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>${events.map(e=>`<tr><td><b>${esc(e.name)}</b></td><td>${e.category}</td><td>${esc(e.date)}<br><span class="muted">${esc(e.time)}</span></td><td>${esc(e.venue)}</td><td>${e.points}</td><td>₹${e.fee}</td><td>${e.status}</td><td><div class="row" style="margin:0"><button class="sec" onclick="editing=${e.id};go('a_form')">Edit</button><button class="sec" onclick="toggle(${e.id})">${e.status==="Upcoming"?"Mark completed":"Reopen"}</button><button class="bad" onclick="del(${e.id})">Delete</button></div></td></tr>`).join("")}</tbody></table></div></section>`}
+function toggle(id){const e=events.find(x=>x.id===id);e.status=e.status==="Upcoming"?"Completed":"Upcoming";adminMsg=`${esc(e.name)} marked ${e.status.toLowerCase()}.`;save();render()}
+function del(id){const e=events.find(x=>x.id===id);if(!confirm(`Delete “${e.name}”?`))return;events=events.filter(x=>x.id!==id);registered=registered.filter(r=>r!==id);adminMsg=`${esc(e.name)} deleted.`;save();render()}
+function a_form(){const e=editing?events.find(x=>x.id===editing):{name:"",category:"Technical",date:"",time:"",venue:"",points:30,fee:50,desc:""};
+const f=(id,l,v,t="text")=>`<div><label for="f_${id}">${l}</label><input id="f_${id}" type="${t}" value="${esc(v)}"></div>`;
+return `<h1 class="t">${editing?"Edit Event":"Add Event"}</h1><section class="card"><div class="form">${f("name","Event name",e.name)}<div><label for="f_cat">Category</label><select id="f_cat">${["Technical","Cultural","Sports"].map(c=>`<option ${c===e.category?"selected":""}>${c}</option>`).join("")}</select></div>${f("date","Date (e.g. 25 Nov 2026)",e.date)}${f("time","Time (e.g. 10:00 AM)",e.time)}${f("venue","Venue",e.venue)}${f("points","APP points",e.points,"number")}${f("fee","Fee (₹)",e.fee,"number")}<div class="full"><label for="f_desc">Description</label><textarea id="f_desc" rows="3">${esc(e.desc)}</textarea></div></div><div id="ferr" class="err"></div><div class="row"><button onclick="saveEv()">${editing?"Save changes":"Add event"}</button><button class="sec" onclick="go('a_events')">Cancel</button></div></section>`}
+function saveEv(){const g=id=>$("f_"+id).value.trim();const d={name:g("name"),category:$("f_cat").value,date:g("date"),time:g("time"),venue:g("venue"),points:+g("points")||0,fee:+g("fee")||0,desc:g("desc")};
+if(!d.name||!d.date||!d.time||!d.venue){$("ferr").textContent="Enter the event name, date, time and venue.";return}
+if(editing){Object.assign(events.find(x=>x.id===editing),d);adminMsg=`${esc(d.name)} updated.`}else{events.push({id:Date.now(),status:"Upcoming",...d});adminMsg=`${esc(d.name)} added.`}
+save();editing=null;go("a_events")}
+function a_regs(){const r=regEvents();return `<h1 class="t">Registrations</h1><section class="card">${r.length?`<div class="wrap"><table><thead><tr><th>Student</th><th>Roll No</th><th>Event</th><th>Fee paid</th><th>Event status</th></tr></thead><tbody>${r.map(e=>`<tr><td>${student.name}</td><td>${student.roll}</td><td>${esc(e.name)}</td><td>₹${e.fee}</td><td>${e.status}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted">No registrations yet. Student registrations appear here.</p>`}</section>`}
+</script>
+</body>
+</html>
